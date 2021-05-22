@@ -1,5 +1,5 @@
 # WhatsApp Clone
-Whatsapp with NEXT.JS! (1-1 Messaging, Live Status, Styled-Components, React.JS, Firebase)
+Whatsapp with NEXT.JS! 1-1 Messaging, Live Status, Styled-Components, Material-UI, React.JS, and Firebase.
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
