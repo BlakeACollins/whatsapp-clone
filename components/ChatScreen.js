@@ -8,13 +8,16 @@ import MoreVertIcon from '@material-ui/icons/MoreVert'
 import AttachFileIcon from '@material-ui/icons/AttachFile'
 import {  Message } from '@material-ui/icons';
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon'
-
-
+import MicIcon from '@material-ui/icons/Mic'
+import { useState } from 'react'
+import firebase from 'firebase'
 
 function ChatScreen({ chat, messages }) {
     const [user] = useAuthState(auth);
+    const [input, setInput] = useState("");
     const router = useRouter();
-    const [messageSnapshot] = useCollection(db
+    const [messageSnapshot] = useCollection(
+        db
         .collection('chats')
         .doc(router.query.id)
         .collection('messages')
@@ -23,7 +26,7 @@ function ChatScreen({ chat, messages }) {
 
     const showMessage = () => {
         if(messageSnapshot){
-            return messageSnapshot.docs.map(message => (
+            return messageSnapshot.docs.map((message) => (
                 <Message
                 key={message.id}
                 user={message.date().user}
@@ -33,8 +36,33 @@ function ChatScreen({ chat, messages }) {
                 }}
                 />
             ));
+        }else{
+
+            return JSON.parse(messages).map(message => {
+                <Message key={message.id} user={message.user} message={message} />
+            })
         }
     }
+
+    const sendMessage = (e) => {
+        e.preventDefault();
+        //update lasat seen
+        db.collection("users").doc(user.uid).set(
+        {
+            lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+        },
+            { merge: true }
+        );
+
+        db.collection('chats').doc(router.query.id).collection('messages').add({
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            message: input,
+            user: user.email,
+            photoURL: user.photoURL,
+        });
+
+        setInput("");
+    };
 
 
     return (
@@ -64,7 +92,16 @@ function ChatScreen({ chat, messages }) {
 
             <InputContainer>
                 <InsertEmoticonIcon />
-                <Input />
+                <Input 
+                value={input} 
+                onChange={e => setInput(e.target.value)}/>
+                <button 
+                hidden 
+                disabled={!input} 
+                type="submit"
+                onClick={sendMessage}
+                >Send Message</button>
+                <MicIcon />
             </InputContainer>
         </Container>
     )
@@ -104,9 +141,22 @@ const HeaderIcons = styled.div``;
 
 const EndOfMessage = styled.div``;
 
-const MessageContainer = styled.div``;
+const MessageContainer = styled.div`
+    padding: 30px;
+    background-color: #e5ded8;
+    min-height: 90vh;
+`;
 
-const Input = styled.div``;
+const Input = styled.div`
+    flex: 1;
+    outline: 0;
+    border: none;
+    border-radius: 10px;
+    background-color: whitesmoke;
+    padding: 20px;
+    margin-left:15px;
+    margin-right: 15px;
+`;
 
 const InputContainer = styled.form`
     display: flex;
